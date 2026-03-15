@@ -79,7 +79,7 @@ jobs:
 
       - name: Detect Changed Packages
         id: detect
-        uses: ./.github/actions/powershell/detect-changed-packages
+        uses: DBMaestroDev/github/.github/actions/ps/detect-changed-packages@main
         with:
           package_name: ${{ inputs.package_name }}
           detect_from_push: ${{ inputs.detect_from_push }}
@@ -100,7 +100,7 @@ jobs:
 
       - name: Detect Changed Folders in packages/
         id: detect-pr
-        uses: ./.github/actions/powershell/detect-changed-packages
+        uses: DBMaestroDev/github/.github/actions/ps/detect-changed-packages@main
         with:
           is_pull_request: true
 
@@ -115,7 +115,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Post PR Comment
-        uses: ./.github/actions/powershell/pr-comment
+        uses: DBMaestroDev/github/.github/actions/ps/pr-comment@main
         with:
           packages_list: ${{ needs.detect_changed_packages_pr.outputs.packages-list }}
           environment_name: ${{ inputs.target_environment }}
@@ -140,7 +140,7 @@ jobs:
           fetch-depth: 0
 
       - name: Upgrade Package
-        uses: ./.github/actions/powershell/upgrade-environment
+        uses: DBMaestroDev/github/.github/actions/ps/upgrade-environment@main
         with:
           package_name: ${{ matrix.item.package }}
           target_environment: ${{ inputs.target_environment }}

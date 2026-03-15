@@ -2,14 +2,16 @@
 
 This repository contains reusable workflows and composite actions for DBmaestro package management and environment upgrades. The workflows and actions are available in two variants: **Linux** (bash) and **PowerShell** (Windows).
 
+**Note:** The composite actions referenced by these workflows are located in the `DBMaestroDev/github` repository and are called using the `@main` branch reference (e.g., `DBMaestroDev/github/.github/actions/sh/detect-changed-packages@main`).
+
 ## Table of Contents
 
 - [Workflows](#workflows)
-  - [Linux Workflows](#linux-workflows)
-  - [PowerShell Workflows](#powershell-workflows)
+  - [Linux Workflows](#sh-workflows)
+  - [PowerShell Workflows](#ps-workflows)
 - [Composite Actions](#composite-actions)
-  - [Linux Actions](#linux-actions)
-  - [PowerShell Actions](#powershell-actions)
+  - [Linux Actions](#sh-actions)
+  - [PowerShell Actions](#ps-actions)
 - [Usage](#usage)
 
 ---
@@ -19,7 +21,7 @@ This repository contains reusable workflows and composite actions for DBmaestro 
 ### Linux Workflows
 
 #### 1. Build and Validate Packages
-**File:** `.github/workflows/linux/build-validate.yml`
+**File:** `.github/workflows/sh-build-validate.yml`
 
 A reusable workflow for building and validating DBmaestro packages on Linux runners.
 
@@ -51,7 +53,7 @@ A reusable workflow for building and validating DBmaestro packages on Linux runn
 ---
 
 #### 2. Upgrade Environment (Linux)
-**File:** `.github/workflows/linux/upgrade-environment.yml`
+**File:** `.github/workflows/sh-upgrade-environment.yml`
 
 A reusable workflow for upgrading DBmaestro environments on Linux runners.
 
@@ -92,7 +94,7 @@ A reusable workflow for upgrading DBmaestro environments on Linux runners.
 ### PowerShell Workflows
 
 #### 1. Upgrade Environment (PowerShell)
-**File:** `.github/workflows/powershell/upgrade-environment.yml`
+**File:** `.github/workflows/ps-upgrade-environment.yml`
 
 A reusable workflow for upgrading DBmaestro environments using PowerShell on Windows runners.
 
@@ -133,10 +135,10 @@ A reusable workflow for upgrading DBmaestro environments using PowerShell on Win
 
 ### Linux Actions
 
-All Linux actions use bash scripts and are located in `.github/actions/linux/`.
+All Linux actions use bash scripts and are located in the `DBMaestroDev/github` repository at `.github/actions/sh/`.
 
 #### 1. Create Package
-**Location:** `.github/actions/linux/create-package/action.yml`
+**Location:** `DBMaestroDev/github/.github/actions/sh/create-package/action.yml`
 
 Creates a DBmaestro package from a folder with manifest, tar archive, and package creation.
 
@@ -164,7 +166,7 @@ Creates a DBmaestro package from a folder with manifest, tar archive, and packag
 ---
 
 #### 2. Precheck Package
-**Location:** `.github/actions/linux/precheck-package/action.yml`
+**Location:** `DBMaestroDev/github/.github/actions/sh/precheck-package/action.yml`
 
 Validates a DBmaestro package using precheck operation.
 
@@ -187,7 +189,7 @@ Validates a DBmaestro package using precheck operation.
 ---
 
 #### 3. Detect Changed Packages
-**Location:** `.github/actions/linux/detect-changed-packages/action.yml`
+**Location:** `DBMaestroDev/github/.github/actions/sh/detect-changed-packages/action.yml`
 
 Detects changed packages from git commits or manual input using bash scripts.
 
@@ -211,7 +213,7 @@ Detects changed packages from git commits or manual input using bash scripts.
 ---
 
 #### 4. Upgrade Environment
-**Location:** `.github/actions/linux/upgrade-environment/action.yml`
+**Location:** `DBMaestroDev/github/.github/actions/sh/upgrade-environment/action.yml`
 
 Upgrades a target environment with a specific package using DBmaestro on Linux.
 
@@ -235,7 +237,7 @@ Upgrades a target environment with a specific package using DBmaestro on Linux.
 ---
 
 #### 5. PR Comment
-**Location:** `.github/actions/linux/pr-comment/action.yml`
+**Location:** `DBMaestroDev/github/.github/actions/sh/pr-comment/action.yml`
 
 Posts a comment on a pull request with detected package information.
 
@@ -261,10 +263,10 @@ Will upgrade **[environment]** with these packages (in order) upon merging.
 
 ### PowerShell Actions
 
-All PowerShell actions use PowerShell scripts and are located in `.github/actions/powershell/`.
+All PowerShell actions use PowerShell scripts and are located in the `DBMaestroDev/github` repository at `.github/actions/ps/`.
 
 #### 1. Detect Changed Packages
-**Location:** `.github/actions/powershell/detect-changed-packages/action.yml`
+**Location:** `DBMaestroDev/github/.github/actions/ps/detect-changed-packages/action.yml`
 
 Detects changed packages from git commits or manual input using PowerShell.
 
@@ -288,7 +290,7 @@ Detects changed packages from git commits or manual input using PowerShell.
 ---
 
 #### 2. Upgrade Environment
-**Location:** `.github/actions/powershell/upgrade-environment/action.yml`
+**Location:** `DBMaestroDev/github/.github/actions/ps/upgrade-environment/action.yml`
 
 Upgrades a target environment with a specific package using DBmaestro on Windows.
 
@@ -312,7 +314,7 @@ Upgrades a target environment with a specific package using DBmaestro on Windows
 ---
 
 #### 3. PR Comment
-**Location:** `.github/actions/powershell/pr-comment/action.yml`
+**Location:** `DBMaestroDev/github/.github/actions/ps/pr-comment/action.yml`
 
 Posts a comment on a pull request with detected package information (identical to Linux version).
 
@@ -342,7 +344,7 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/linux/build-validate.yml
+    uses: DBMaestroDev/github/.github/workflows/sh-build-validate.yml@main
     with:
       project-name: 'MyProject'
       packages-matrix: ${{ github.event.inputs.packages }}
@@ -370,7 +372,7 @@ on:
 
 jobs:
   upgrade:
-    uses: ./.github/workflows/linux/upgrade-environment.yml
+    uses: DBMaestroDev/github/.github/workflows/sh-upgrade-environment.yml@main
     with:
       package_name: ${{ github.event.inputs.packages }}
       target_environment: ${{ github.event.inputs.environment }}
@@ -395,7 +397,7 @@ on:
 
 jobs:
   upgrade:
-    uses: ./.github/workflows/linux/upgrade-environment.yml
+    uses: DBMaestroDev/github/.github/workflows/sh-upgrade-environment.yml@main
     with:
       target_environment: 'Development'
       project_name: 'Demo-PSQL'
@@ -420,7 +422,7 @@ on:
 
 jobs:
   upgrade:
-    uses: ./.github/workflows/linux/upgrade-environment.yml
+    uses: DBMaestroDev/github/.github/workflows/sh-upgrade-environment.yml@main
     with:
       target_environment: 'QA'
       project_name: 'Demo-PSQL'
@@ -436,13 +438,13 @@ jobs:
 ```yaml
 - name: Detect Packages
   id: detect
-  uses: ./.github/actions/linux/detect-changed-packages
+  uses: DBMaestroDev/github/.github/actions/sh/detect-changed-packages@main
   with:
     package_name: 'V15,V16'
     detect_from_push: false
 
 - name: Upgrade Environment
-  uses: ./.github/actions/linux/upgrade-environment
+  uses: DBMaestroDev/github/.github/actions/sh/upgrade-environment@main
   with:
     package_name: 'V15'
     target_environment: 'Production'
