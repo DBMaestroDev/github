@@ -40,7 +40,7 @@ A reusable workflow for building and validating DBmaestro packages on Linux runn
 - `runner`: Runner type (default: `ubuntu-latest`)
 
 **Required Secrets:**
-- `dbmaestro-server`: DBmaestro server hostname
+- `dbmaestro-server`: DBmaestro server hostname (Format: `AGENT_DNS:PORT`, e.g., `agent01.dbmaestro.local:8017`)
 - `dbmaestro-user`: DBmaestro username
 - `dbmaestro-password`: DBmaestro password or token
 
@@ -68,12 +68,13 @@ A reusable workflow for upgrading DBmaestro environments on Linux runners.
 - `project_name`: DBmaestro project name (default: `Demo-PSQL`)
 - `agent_jar_path`: Path to DBmaestro Agent JAR (default: `/opt/dbmaestro/agent/DBmaestroAgent.jar`)
 - `use_ssl`: Use SSL for connection (default: `True`)
+- `auth-type`: Authentication type (default: `DBmaestroAccount`)
 - `detect_from_push`: Detect packages from git push (default: `false`)
 - `is_pull_request`: Whether this is a PR event (default: `false`)
 - `runner`: Runner type (default: `ubuntu-latest`)
 
 **Required Secrets:**
-- `DBMAESTRO_SERVER`: DBmaestro server URL
+- `DBMAESTRO_SERVER`: DBmaestro server URL (Format: `AGENT_DNS:PORT`, e.g., `agent01.dbmaestro.local:8017`)
 - `DBMAESTRO_USER`: DBmaestro username
 - `DBMAESTRO_PASSWORD`: DBmaestro password
 
@@ -108,11 +109,12 @@ A reusable workflow for upgrading DBmaestro environments using PowerShell on Win
 - `project_name`: DBmaestro project name (default: `Demo-PSQL`)
 - `agent_jar_path`: Path to DBmaestro Agent JAR (default: `C:\Program Files (x86)\DBmaestro\DOP Server\Agent\DBmaestroAgent.jar`)
 - `use_ssl`: Use SSL for connection (default: `True`)
+- `auth-type`: Authentication type (default: `DBmaestroAccount`)
 - `detect_from_push`: Detect packages from git push (default: `false`)
 - `is_pull_request`: Whether this is a PR event (default: `false`)
 
 **Required Secrets:**
-- `DBMAESTRO_SERVER`: DBmaestro server URL
+- `DBMAESTRO_SERVER`: DBmaestro server URL (Format: `AGENT_DNS:PORT`, e.g., `agent01.dbmaestro.local:8017`)
 - `DBMAESTRO_USER`: DBmaestro username
 - `DBMAESTRO_PASSWORD`: DBmaestro password
 
@@ -143,7 +145,7 @@ Creates a DBmaestro package from a folder with manifest, tar archive, and packag
 - `project-name`: DBmaestro project name (required)
 - `packages-folder`: Root folder containing packages (default: `packages`)
 - `agent-jar-path`: Path to DBmaestro agent JAR file (required)
-- `dbmaestro-server`: DBmaestro server hostname (required)
+- `dbmaestro-server`: DBmaestro server hostname (required) - Format: `AGENT_DNS:PORT`, e.g., `agent01.dbmaestro.local:8017`
 - `use-ssl`: Use SSL for connection (default: `True`)
 - `auth-type`: Authentication type (default: `DBmaestroAccount`)
 - `username`: DBmaestro username (required)
@@ -170,7 +172,7 @@ Validates a DBmaestro package using precheck operation.
 - `package-name`: Name of the package to validate (required)
 - `project-name`: DBmaestro project name (required)
 - `agent-jar-path`: Path to DBmaestro agent JAR file (required)
-- `dbmaestro-server`: DBmaestro server hostname (required)
+- `dbmaestro-server`: DBmaestro server hostname (required) - Format: `AGENT_DNS:PORT`, e.g., `agent01.dbmaestro.local:8017`
 - `use-ssl`: Use SSL for connection (default: `True`)
 - `auth-type`: Authentication type (default: `DBmaestroAccount`)
 - `username`: DBmaestro username (required)
@@ -219,7 +221,7 @@ Upgrades a target environment with a specific package using DBmaestro on Linux.
 - `project_name`: DBmaestro project name (required)
 - `agent_jar_path`: Path to DBmaestro Agent JAR (required)
 - `use_ssl`: Use SSL (default: `True`)
-- `dbmaestro_server`: DBmaestro server URL (required)
+- `dbmaestro_server`: DBmaestro server URL (required) - Format: `AGENT_DNS:PORT`, e.g., `agent01.dbmaestro.local:8017`
 - `dbmaestro_user`: DBmaestro username (required)
 - `dbmaestro_password`: DBmaestro password (required)
 - `auth_type`: Authentication type (default: `DBmaestroAccount`)
@@ -296,7 +298,7 @@ Upgrades a target environment with a specific package using DBmaestro on Windows
 - `project_name`: DBmaestro project name (required)
 - `agent_jar_path`: Path to DBmaestro Agent JAR (required)
 - `use_ssl`: Use SSL (default: `True`)
-- `dbmaestro_server`: DBmaestro server URL (required)
+- `dbmaestro_server`: DBmaestro server URL (required) - Format: `AGENT_DNS:PORT`, e.g., `agent01.dbmaestro.local:8017`
 - `dbmaestro_user`: DBmaestro username (required)
 - `dbmaestro_password`: DBmaestro password (required)
 - `auth_type`: Authentication type (default: `DBmaestroAccount`)
@@ -470,6 +472,7 @@ jobs:
 All workflows require the following secrets to be configured:
 
 - `DBMAESTRO_SERVER` or `dbmaestro-server`: DBmaestro server hostname/URL
+  - Format: `AGENT_DNS:PORT` (Example: `agent01.dbmaestro.local:8017`)
 - `DBMAESTRO_USER` or `dbmaestro-user`: DBmaestro username
 - `DBMAESTRO_PASSWORD` or `dbmaestro-password`: DBmaestro password or API token
 

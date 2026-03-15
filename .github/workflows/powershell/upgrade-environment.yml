@@ -41,6 +41,11 @@ on:
         required: false
         type: boolean
         default: false
+      auth-type:
+        description: 'Authentication type'
+        required: false
+        type: string
+        default: 'DBmaestroAccount'
     secrets:
       DBMAESTRO_SERVER:
         required: true
@@ -55,7 +60,6 @@ on:
 
 env:
   GIT_DEPTH: 1
-  DBMAESTRO_AUTH_TYPE: "DBmaestroAccount"
 
 jobs:
   # Detect changed packages from push or workflow input
@@ -143,6 +147,7 @@ jobs:
           project_name: ${{ inputs.project_name }}
           agent_jar_path: ${{ inputs.agent_jar_path }}
           use_ssl: ${{ inputs.use_ssl }}
+          auth_type: ${{ inputs.auth-type }}
           dbmaestro_server: ${{ secrets.DBMAESTRO_SERVER }}
           dbmaestro_user: ${{ secrets.DBMAESTRO_USER }}
           dbmaestro_password: ${{ secrets.DBMAESTRO_PASSWORD }}
