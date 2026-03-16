@@ -1,3 +1,4 @@
+# Version: v1.0.0
 name: 'Upgrade Environment'
 description: 'Upgrades a target environment with a specific package using DBmaestro (Linux/bash)'
 inputs:

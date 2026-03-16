@@ -261,6 +261,36 @@ Will upgrade **[environment]** with these packages (in order) upon merging.
 
 ---
 
+#### 6. Get CLI JAR
+**Location:** `DBMaestroDev/github/.github/actions/sh/get-cli-jar/action.yml`
+
+Downloads the DBmaestro Agent JAR file from GitHub releases.
+
+**Inputs:**
+- `version`: Version of the DBmaestro Agent JAR to download (required) - Format: `26.1.0.13224`
+- `jar-path`: Path where the JAR file will be saved (required) - Example: `./DBmaestroAgent.jar`
+
+**Outputs:**
+- `jar-file`: Path to the downloaded JAR file
+- `download-success`: Whether the download was successful
+
+**Steps:**
+1. Creates target directory if it doesn't exist
+2. Downloads JAR file from `https://raw.githubusercontent.com/DBMaestroDev/dbm_jar/refs/tags/v{version}/DBmaestroAgent.jar`
+3. Verifies file exists and is not empty
+4. Reports file size and download success
+
+**Usage:**
+```yaml
+- name: Download DBmaestro Agent
+  uses: DBMaestroDev/github/.github/actions/sh/get-cli-jar@v1
+  with:
+    version: '26.1.0.13224'
+    jar-path: './tools/DBmaestroAgent.jar'
+```
+
+---
+
 ### PowerShell Actions
 
 All PowerShell actions use PowerShell scripts and are located in the `DBMaestroDev/github` repository at `.github/actions/ps/`.
@@ -325,6 +355,36 @@ Posts a comment on a pull request with detected package information (identical t
 
 **Steps:**
 1. Posts formatted comment to PR using GitHub Script API
+
+---
+
+#### 4. Get CLI JAR
+**Location:** `DBMaestroDev/github/.github/actions/ps/get-cli-jar/action.yml`
+
+Downloads the DBmaestro Agent JAR file from GitHub releases using PowerShell.
+
+**Inputs:**
+- `version`: Version of the DBmaestro Agent JAR to download (required) - Format: `26.1.0.13224`
+- `jar-path`: Path where the JAR file will be saved (required) - Example: `.\DBmaestroAgent.jar`
+
+**Outputs:**
+- `jar-file`: Path to the downloaded JAR file
+- `download-success`: Whether the download was successful
+
+**Steps:**
+1. Creates target directory if it doesn't exist
+2. Downloads JAR file using `Invoke-WebRequest` from `https://raw.githubusercontent.com/DBMaestroDev/dbm_jar/refs/tags/v{version}/DBmaestroAgent.jar`
+3. Verifies file exists and is not empty
+4. Reports file size and download success
+
+**Usage:**
+```yaml
+- name: Download DBmaestro Agent
+  uses: DBMaestroDev/github/.github/actions/ps/get-cli-jar@v1
+  with:
+    version: '26.1.0.13224'
+    jar-path: '.\tools\DBmaestroAgent.jar'
+```
 
 ---
 
@@ -465,7 +525,8 @@ jobs:
 | **Default Runner** | `ubuntu-latest` (configurable) | `self-hosted` |
 | **Agent Path** | `/opt/dbmaestro/agent/DBmaestroAgent.jar` | `C:\Program Files (x86)\DBmaestro\DOP Server\Agent\DBmaestroAgent.jar` |
 | **Additional Workflows** | Build and Validate | (not available) |
-| **Additional Actions** | Create Package, Precheck Package | (not available) |
+| **Linux-Only Actions** | Create Package, Precheck Package | (not available) |
+| **Common Actions** | Detect Changed Packages, Upgrade Environment, PR Comment, Get CLI JAR | Detect Changed Packages, Upgrade Environment, PR Comment, Get CLI JAR |
 
 ---
 

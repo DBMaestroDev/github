@@ -1,3 +1,4 @@
+# Version: v1.0.0
 name: 'Create DBmaestro Package'
 description: 'Creates a DBmaestro package from a folder with manifest, tar archive, and package creation'
 inputs:

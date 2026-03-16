@@ -1,0 +1,70 @@
+# Version: v1.0.0
+name: 'Get DBmaestro CLI JAR'
+description: 'Downloads the DBmaestro Agent JAR file from GitHub releases'
+inputs:
+  version:
+    description: 'Version of the DBmaestro Agent JAR to download (e.g., 26.1.0.13224)'
+    required: true
+  jar-path:
+    description: 'Path where the JAR file will be saved (including filename, e.g., .\DBmaestroAgent.jar)'
+    required: true
+outputs:
+  jar-file:
+    description: 'Path to the downloaded JAR file'
+    value: ${{ inputs.jar-path }}
+  download-success:
+    description: 'Whether the download was successful'
+    value: ${{ steps.download.outputs.success }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Download DBmaestro Agent JAR
+      id: download
+      shell: powershell -ExecutionPolicy Bypass -Command ". '{0}'"
+      run: |
+        $ErrorActionPreference = 'Stop'
+        
+        $version = "${{ inputs.version }}"
+        $jarPath = "${{ inputs.jar-path }}"
+        $jarUrl = "https://raw.githubusercontent.com/DBMaestroDev/dbm_jar/refs/tags/v${version}/DBmaestroAgent.jar"
+        
+        Write-Host "Downloading DBmaestro Agent JAR version $version"
+        Write-Host "From: $jarUrl"
+        Write-Host "To: $jarPath"
+        
+        try {
+          # Create directory if it doesn't exist
+          $jarDir = Split-Path -Path $jarPath -Parent
+          if ($jarDir -and -not (Test-Path -Path $jarDir)) {
+            Write-Host "Creating directory: $jarDir"
+            New-Item -ItemType Directory -Path $jarDir -Force | Out-Null
+          }
+          
+          # Download the JAR file
+          Write-Host "Downloading file..."
+          Invoke-WebRequest -Uri $jarUrl -OutFile $jarPath -UseBasicParsing
+          
+          # Verify the file exists and is not empty
+          if (Test-Path -Path $jarPath) {
+            $fileInfo = Get-Item -Path $jarPath
+            if ($fileInfo.Length -gt 0) {
+              Write-Host "Successfully downloaded JAR file to $jarPath"
+              Write-Host "File size: $($fileInfo.Length) bytes"
+              Add-Content -Path $env:GITHUB_OUTPUT -Value "success=true"
+            } else {
+              Write-Host "ERROR: Downloaded file is empty"
+              Add-Content -Path $env:GITHUB_OUTPUT -Value "success=false"
+              exit 1
+            }
+          } else {
+            Write-Host "ERROR: Downloaded file does not exist at $jarPath"
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "success=false"
+            exit 1
+          }
+        } catch {
+          Write-Host "ERROR: Failed to download JAR file from $jarUrl"
+          Write-Host "Error details: $_"
+          Write-Host "Please verify the version exists in the repository"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "success=false"
+          exit 1
+        }

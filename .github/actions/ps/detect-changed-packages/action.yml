@@ -1,3 +1,4 @@
+# Version: v1.0.0
 name: 'Detect Changed Packages'
 description: 'Detects changed packages from git commits or manual input'
 inputs:

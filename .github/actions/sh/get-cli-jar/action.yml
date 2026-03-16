@@ -1,0 +1,61 @@
+# Version: v1.0.0
+name: 'Get DBmaestro CLI JAR'
+description: 'Downloads the DBmaestro Agent JAR file from GitHub releases'
+inputs:
+  version:
+    description: 'Version of the DBmaestro Agent JAR to download (e.g., 26.1.0.13224)'
+    required: true
+  jar-path:
+    description: 'Path where the JAR file will be saved (including filename, e.g., ./DBmaestroAgent.jar)'
+    required: true
+outputs:
+  jar-file:
+    description: 'Path to the downloaded JAR file'
+    value: ${{ inputs.jar-path }}
+  download-success:
+    description: 'Whether the download was successful'
+    value: ${{ steps.download.outputs.success }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Download DBmaestro Agent JAR
+      id: download
+      shell: bash
+      run: |
+        set -e
+        
+        VERSION="${{ inputs.version }}"
+        JAR_PATH="${{ inputs.jar-path }}"
+        JAR_URL="https://raw.githubusercontent.com/DBMaestroDev/dbm_jar/refs/tags/v${VERSION}/DBmaestroAgent.jar"
+        
+        echo "Downloading DBmaestro Agent JAR version ${VERSION}"
+        echo "From: ${JAR_URL}"
+        echo "To: ${JAR_PATH}"
+        
+        # Create directory if it doesn't exist
+        JAR_DIR=$(dirname "${JAR_PATH}")
+        if [ ! -d "${JAR_DIR}" ]; then
+          echo "Creating directory: ${JAR_DIR}"
+          mkdir -p "${JAR_DIR}"
+        fi
+        
+        # Download the JAR file
+        if curl -fsSL -o "${JAR_PATH}" "${JAR_URL}"; then
+          echo "Successfully downloaded JAR file to ${JAR_PATH}"
+          
+          # Verify the file exists and is not empty
+          if [ -f "${JAR_PATH}" ] && [ -s "${JAR_PATH}" ]; then
+            FILE_SIZE=$(stat -f%z "${JAR_PATH}" 2>/dev/null || stat -c%s "${JAR_PATH}" 2>/dev/null || echo "unknown")
+            echo "File size: ${FILE_SIZE} bytes"
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "ERROR: Downloaded file is empty or does not exist"
+            echo "success=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+        else
+          echo "ERROR: Failed to download JAR file from ${JAR_URL}"
+          echo "Please verify the version exists in the repository"
+          echo "success=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi

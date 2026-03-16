@@ -1,0 +1,148 @@
+# Version: v1.0.0
+name: 'Create DBmaestro Package'
+description: 'Creates a DBmaestro package from a folder with manifest, tar archive, and package creation'
+inputs:
+  package-name:
+    description: 'Name of the package to create'
+    required: true
+  project-name:
+    description: 'DBmaestro project name'
+    required: true
+  packages-folder:
+    description: 'Root folder containing packages'
+    required: false
+    default: 'packages'
+  agent-jar-path:
+    description: 'Path to DBmaestro agent JAR file'
+    required: true
+  dbmaestro-server:
+    description: 'DBmaestro server hostname'
+    required: true
+  use-ssl:
+    description: 'Use SSL for connection'
+    required: false
+    default: 'True'
+  auth-type:
+    description: 'Authentication type'
+    required: false
+    default: 'DBmaestroAccount'
+  username:
+    description: 'DBmaestro username'
+    required: true
+  password:
+    description: 'DBmaestro password or token'
+    required: true
+  package-type:
+    description: 'Package type (Regular or AdHoc)'
+    required: false
+    default: 'Regular'
+  ignore-script-warnings:
+    description: 'Ignore script warnings during package creation'
+    required: false
+    default: 'True'
+outputs:
+  package-created:
+    description: 'Whether package was created successfully'
+    value: ${{ steps.create.outputs.success }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Validate package folder exists
+      shell: powershell -ExecutionPolicy Bypass -Command ". '{0}'"
+      run: |
+        $ErrorActionPreference = 'Stop'
+        
+        $packagesFolder = "${{ inputs.packages-folder }}"
+        $packageName = "${{ inputs.package-name }}"
+        $packagePath = Join-Path -Path $packagesFolder -ChildPath $packageName
+        
+        if (-not (Test-Path -Path $packagePath -PathType Container)) {
+          Write-Host "ERROR: Folder $packageName does not exist in $packagesFolder"
+          exit 1
+        } else {
+          Write-Host "Found package folder: $packageName"
+        }
+
+    - name: Create manifest file
+      shell: powershell -ExecutionPolicy Bypass -Command ". '{0}'"
+      run: |
+        $ErrorActionPreference = 'Stop'
+        
+        $packageName = "${{ inputs.package-name }}"
+        $packagesFolder = "${{ inputs.packages-folder }}"
+        $agentJarPath = "${{ inputs.agent-jar-path }}"
+        $packageType = "${{ inputs.package-type }}"
+        $scriptsFolder = Join-Path -Path $packagesFolder -ChildPath $packageName
+        
+        Write-Host "Creating manifest for package $packageName"
+        
+        & java -jar "$agentJarPath" -CreateManifestFile `
+          -PathToScriptsFolder "$scriptsFolder" `
+          -Operation "CreateOrUpdate" `
+          -PackageType "$packageType"
+        
+        if ($LASTEXITCODE -ne 0) {
+          Write-Host "ERROR: Failed to create manifest file"
+          exit 1
+        }
+
+    - name: Create zip archive
+      shell: powershell -ExecutionPolicy Bypass -Command ". '{0}'"
+      run: |
+        $ErrorActionPreference = 'Stop'
+        
+        $packageName = "${{ inputs.package-name }}"
+        $packagesFolder = "${{ inputs.packages-folder }}"
+        $zipFile = "$packageName.zip"
+        $sourcePath = Join-Path -Path $packagesFolder -ChildPath $packageName
+        $destinationPath = Join-Path -Path (Get-Location) -ChildPath $zipFile
+        
+        Write-Host "Creating zip archive from $packageName"
+        
+        # Remove existing zip file if it exists
+        if (Test-Path -Path $destinationPath) {
+          Remove-Item -Path $destinationPath -Force
+        }
+        
+        # Create zip archive using Compress-Archive
+        Compress-Archive -Path "$sourcePath\*" -DestinationPath $destinationPath -CompressionLevel Optimal
+        
+        if (Test-Path -Path $destinationPath) {
+          $fileSize = (Get-Item -Path $destinationPath).Length
+          Write-Host "Zip archive created: $zipFile (Size: $fileSize bytes)"
+        } else {
+          Write-Host "ERROR: Failed to create zip archive"
+          exit 1
+        }
+
+    - name: Create package in DBmaestro
+      id: create
+      shell: powershell -ExecutionPolicy Bypass -Command ". '{0}'"
+      run: |
+        $ErrorActionPreference = 'Stop'
+        
+        $packageName = "${{ inputs.package-name }}"
+        $projectName = "${{ inputs.project-name }}"
+        $agentJarPath = "${{ inputs.agent-jar-path }}"
+        $zipFile = "$packageName.zip"
+        
+        Write-Host "Creating package $packageName in DBmaestro"
+        
+        & java -jar "$agentJarPath" -Package `
+          -ProjectName "$projectName" `
+          -IgnoreScriptWarnings "${{ inputs.ignore-script-warnings }}" `
+          -FilePath "$zipFile" `
+          -Server "${{ inputs.dbmaestro-server }}" `
+          -UseSSL "${{ inputs.use-ssl }}" `
+          -AuthType "${{ inputs.auth-type }}" `
+          -UserName "${{ inputs.username }}" `
+          -Password "${{ inputs.password }}"
+        
+        if ($LASTEXITCODE -eq 0) {
+          Write-Host "Package created successfully"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "success=true"
+        } else {
+          Write-Host "Failed to create package"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "success=false"
+          exit 1
+        }
