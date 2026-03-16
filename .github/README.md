@@ -2,7 +2,7 @@
 
 This repository contains reusable workflows and composite actions for DBmaestro package management and environment upgrades. The workflows and actions are available in two variants: **Linux** (bash) and **PowerShell** (Windows).
 
-**Note:** The composite actions referenced by these workflows are located in the `DBMaestroDev/github` repository and are called using the `@main` branch reference (e.g., `DBMaestroDev/github/.github/actions/sh/detect-changed-packages@main`).
+**Note:** The composite actions referenced by these workflows are located in the `DBMaestroDev/github` repository and are called using the `@v1` branch reference (e.g., `DBMaestroDev/github/.github/actions/sh/detect-changed-packages@v1`).
 
 ## Table of Contents
 
@@ -344,7 +344,7 @@ on:
 
 jobs:
   build:
-    uses: DBMaestroDev/github/.github/workflows/sh-build-validate.yml@main
+    uses: DBMaestroDev/github/.github/workflows/sh-build-validate.yml@v1
     with:
       project-name: 'MyProject'
       packages-matrix: ${{ github.event.inputs.packages }}
@@ -372,7 +372,7 @@ on:
 
 jobs:
   upgrade:
-    uses: DBMaestroDev/github/.github/workflows/sh-upgrade-environment.yml@main
+    uses: DBMaestroDev/github/.github/workflows/sh-upgrade-environment.yml@v1
     with:
       package_name: ${{ github.event.inputs.packages }}
       target_environment: ${{ github.event.inputs.environment }}
@@ -397,7 +397,7 @@ on:
 
 jobs:
   upgrade:
-    uses: DBMaestroDev/github/.github/workflows/sh-upgrade-environment.yml@main
+    uses: DBMaestroDev/github/.github/workflows/sh-upgrade-environment.yml@v1
     with:
       target_environment: 'Development'
       project_name: 'Demo-PSQL'
@@ -422,7 +422,7 @@ on:
 
 jobs:
   upgrade:
-    uses: DBMaestroDev/github/.github/workflows/sh-upgrade-environment.yml@main
+    uses: DBMaestroDev/github/.github/workflows/sh-upgrade-environment.yml@v1
     with:
       target_environment: 'QA'
       project_name: 'Demo-PSQL'
@@ -438,13 +438,13 @@ jobs:
 ```yaml
 - name: Detect Packages
   id: detect
-  uses: DBMaestroDev/github/.github/actions/sh/detect-changed-packages@main
+  uses: DBMaestroDev/github/.github/actions/sh/detect-changed-packages@v1
   with:
     package_name: 'V15,V16'
     detect_from_push: false
 
 - name: Upgrade Environment
-  uses: DBMaestroDev/github/.github/actions/sh/upgrade-environment@main
+  uses: DBMaestroDev/github/.github/actions/sh/upgrade-environment@v1
   with:
     package_name: 'V15'
     target_environment: 'Production'
