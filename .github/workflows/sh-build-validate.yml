@@ -1,4 +1,4 @@
-# Version: v0.1.0
+# Version: v1.7
 # Reusable workflow for building and validating DBmaestro packages
 # Can be called from other workflows with different configurations
 # Accepts a list of packages to build and validate
