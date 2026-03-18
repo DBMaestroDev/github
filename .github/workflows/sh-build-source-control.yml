@@ -1,0 +1,115 @@
+# Version: v1.0.0
+# Reusable Workflow: Build Package from Source Control
+# This workflow builds a DBmaestro package from source control (Tasks or Specific Commit)
+# and validates it with precheck
+
+name: Build from Source Control (Linux)
+
+on:
+  workflow_call:
+    inputs:
+      package-name:
+        description: 'Name of the package to build'
+        required: true
+        type: string
+      project-name:
+        description: 'DBmaestro project name'
+        required: true
+        type: string
+      environment-name:
+        description: 'Development environment name'
+        required: false
+        type: string
+        default: 'Dev_Env_1'
+      version-type:
+        description: 'Version type: Tasks, Specific Commit, or empty'
+        required: false
+        type: string
+        default: ''
+      additional-information:
+        description: 'Tasks list (comma-separated) or specific commit hash'
+        required: false
+        type: string
+        default: ''
+      agent-jar-path:
+        description: 'Path to DBmaestro Agent JAR file'
+        required: false
+        type: string
+        default: '/home/runner/DBmaestroAgent.jar'
+      use-ssl:
+        description: 'Use SSL for DBmaestro connection'
+        required: false
+        type: string
+        default: 'True'
+      auth-type:
+        description: 'Authentication type'
+        required: false
+        type: string
+        default: 'DBmaestroAccount'
+      runner:
+        description: 'GitHub runner to use'
+        required: false
+        type: string
+        default: 'dbmaestro-linux'
+    secrets:
+      dbmaestro-server:
+        description: 'DBmaestro server URL'
+        required: true
+      dbmaestro-user:
+        description: 'DBmaestro username'
+        required: true
+      dbmaestro-password:
+        description: 'DBmaestro password'
+        required: true
+
+jobs:
+  build_package:
+    name: Build Package
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - name: Build Package Summary
+        shell: bash
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << EOF
+          ## :package: Source Control Build Summary
+          
+          | Property | Value |
+          |----------|-------|
+          | **Package Name** | ${{ inputs.package-name }} |
+          | **Project Name** | ${{ inputs.project-name }} |
+          | **Environment** | ${{ inputs.environment-name }} |
+          | **Version Type** | ${{ inputs.version-type }} |
+          | **Additional Info** | ${{ inputs.additional-information }} |
+          EOF
+
+      - name: Build from Source Control
+        uses: DBMaestroDev/github/.github/actions/sh/build-from-source-control@main
+        with:
+          package-name: ${{ inputs.package-name }}
+          project-name: ${{ inputs.project-name }}
+          environment-name: ${{ inputs.environment-name }}
+          version-type: ${{ inputs.version-type }}
+          additional-information: ${{ inputs.additional-information }}
+          agent-jar-path: ${{ inputs.agent-jar-path }}
+          dbmaestro-server: ${{ secrets.dbmaestro-server }}
+          use-ssl: ${{ inputs.use-ssl }}
+          auth-type: ${{ inputs.auth-type }}
+          username: ${{ secrets.dbmaestro-user }}
+          password: ${{ secrets.dbmaestro-password }}
+
+  precheck_package:
+    name: Validate Package
+    runs-on: ${{ inputs.runner }}
+    needs: build_package
+    steps:
+      - name: Precheck Package
+        uses: DBMaestroDev/github/.github/actions/sh/precheck-package@main
+        with:
+          package-name: ${{ inputs.package-name }}
+          project-name: ${{ inputs.project-name }}
+          agent-jar-path: ${{ inputs.agent-jar-path }}
+          dbmaestro-server: ${{ secrets.dbmaestro-server }}
+          use-ssl: ${{ inputs.use-ssl }}
+          auth-type: ${{ inputs.auth-type }}
+          username: ${{ secrets.dbmaestro-user }}
+          password: ${{ secrets.dbmaestro-password }}

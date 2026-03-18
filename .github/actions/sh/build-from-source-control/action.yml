@@ -1,0 +1,81 @@
+# Version: v1.0.0
+name: 'Build Package from Source Control'
+description: 'Build a DBmaestro package from source control (Tasks or Specific Commit)'
+author: 'DBmaestro'
+
+inputs:
+  package-name:
+    description: 'Name of the package to build'
+    required: true
+  project-name:
+    description: 'DBmaestro project name'
+    required: true
+  environment-name:
+    description: 'Development environment name'
+    required: true
+  version-type:
+    description: 'Version type: Tasks or Specific Commit'
+    required: false
+    default: ''
+  additional-information:
+    description: 'Tasks list (comma-separated) or specific commit hash'
+    required: false
+    default: ''
+  agent-jar-path:
+    description: 'Path to DBmaestro Agent JAR file'
+    required: true
+  dbmaestro-server:
+    description: 'DBmaestro server URL'
+    required: true
+  use-ssl:
+    description: 'Use SSL for connection'
+    required: false
+    default: 'True'
+  auth-type:
+    description: 'Authentication type'
+    required: false
+    default: 'DBmaestroAccount'
+  username:
+    description: 'DBmaestro username'
+    required: true
+  password:
+    description: 'DBmaestro password'
+    required: true
+
+outputs:
+  package-created:
+    description: 'Whether the package was created successfully (true/false)'
+    value: ${{ steps.build.outcome == 'success' }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Build Package from Source Control
+      id: build
+      shell: bash
+      run: |
+        echo "==== Building package: ${{ inputs.package-name }} ===="
+        echo "Project: ${{ inputs.project-name }}"
+        echo "Environment: ${{ inputs.environment-name }}"
+        echo "Version Type: ${{ inputs.version-type }}"
+        echo "Additional Information: ${{ inputs.additional-information }}"
+        
+        java -jar "${{ inputs.agent-jar-path }}" -Build \
+          -ProjectName "${{ inputs.project-name }}" \
+          -EnvName "${{ inputs.environment-name }}" \
+          -VersionType "${{ inputs.version-type }}" \
+          -AdditionalInformation "${{ inputs.additional-information }}" \
+          -CreatePackage True \
+          -PackageName "${{ inputs.package-name }}" \
+          -Server "${{ inputs.dbmaestro-server }}" \
+          -UseSSL "${{ inputs.use-ssl }}" \
+          -AuthType "${{ inputs.auth-type }}" \
+          -UserName "${{ inputs.username }}" \
+          -Password "${{ inputs.password }}"
+        
+        if [ $? -ne 0 ]; then
+          echo "::error::Failed to build package ${{ inputs.package-name }}"
+          exit 1
+        fi
+        
+        echo "✅ Package ${{ inputs.package-name }} built successfully"
